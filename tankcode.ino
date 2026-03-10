@@ -92,7 +92,7 @@ void turnTo(int direction){
     turnRight(50, 10);
   }
   
-      else if (Enes100.getTheta() < targetTheta + .1){
+      else if (Enes100.getTheta() > targetTheta + .1){
     turnRight(20, 10);
   }
   
