@@ -2,22 +2,10 @@
 #include "Enes100.h"
 #include "Tank.h"
 
-// ============================================================
-// OBSTACLE CONFIG — set true if that lane/row combo is blocked
-// ============================================================
-bool ROW1_TOP_BLOCKED = false;
-bool ROW1_MID_BLOCKED = true;
-bool ROW1_BOT_BLOCKED = true;
-
-bool ROW2_TOP_BLOCKED = true;
-bool ROW2_MID_BLOCKED = false;
-bool ROW2_BOT_BLOCKED = false;
-// ============================================================
-
 #define BOT 0
 #define MID 1
 #define TOP 2
-
+const float blockedVal = .8;
 const float LANE_Y[3] = { 0.5, 1.0, 1.6 };  // BOT, MID, TOP
 
 // --- Motion primitives ---
@@ -72,16 +60,9 @@ int getLane() {
   return BOT;
 }
 
-bool isBlocked(int row, int lane) {
-  if (row == 1) {
-    if (lane == TOP) return ROW1_TOP_BLOCKED;
-    if (lane == MID) return ROW1_MID_BLOCKED;
-    return ROW1_BOT_BLOCKED;
-  } else {
-    if (lane == TOP) return ROW2_TOP_BLOCKED;
-    if (lane == MID) return ROW2_MID_BLOCKED;
-    return ROW2_BOT_BLOCKED;
-  }
+bool isBlocked(int row, int lane) { 
+  Enes100.println(Tank.readDistanceSensor(1));
+  return (Tank.readDistanceSensor(1) < blockedVal && !(Tank.readDistanceSensor(1) == -1));
 }
 
 int getNextLane(int current) {
@@ -142,7 +123,7 @@ void navigateRow(int row) {
   }
 
   // Drive forward past the row
-  float targetX = (row == 1) ? 1.9 : 3.8;
+  float targetX = (row == 1) ? 1.9 : 2.8;
   while (Enes100.getX() < targetX) {
     turnTo(0);
     moveForward(255, 50);
@@ -152,22 +133,28 @@ void navigateRow(int row) {
 // --- Setup ---
 
 void setup() {
-  Enes100.begin("FIRETEST", FIRE, 16, 1116, 52, 50);
-  Tank.begin();
+  Enes100.begin("FIRETEST", FIRE, 11, 1116, 52, 50);
   Enes100.println("Connected to Vision System");
+  Tank.begin();
 
-while (Enes100.getX() < .9) {
+  while (Enes100.getX() < .9) {
     turnTo(0);
     moveForward(255, 100);
   }
 
   navigateRow(1);
   navigateRow(2);
-
+  
+  while(Enes100.getY() > 0.2){
+    turnTo(-PI/2);
+    moveForward(255, 100);
+  }
+  
   while (Enes100.getX() < 3.8) {
     turnTo(0);
     moveForward(255, 100);
   }
+  
 }
 
-void loop() { delay(100); }
+void loop() { delay(100);}
