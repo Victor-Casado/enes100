@@ -35,7 +35,16 @@ void turnRight(int speed, int time) {
 
 void turnTo(float targetTheta) {
   while (abs(Enes100.getTheta() - targetTheta) > 0.03) {
-    float diff = targetTheta - Enes100.getTheta();
+
+    float diff;
+    bool foundAngle = false;
+    while(!foundAngle){
+      if(Enes100.isVisible()){
+      diff = targetTheta - Enes100.getTheta();
+      foundAngle = true;
+      }
+    }
+
     if (diff > 0) {
       if (diff > 1.0)      turnLeft(255, 70);
       else if (diff > 0.5) turnLeft(200, 20);
@@ -54,7 +63,16 @@ void turnTo(float targetTheta) {
 // --- Lane helpers ---
 
 int getLane() {
-  float y = Enes100.getY();
+
+    float y;
+    bool foundY = false;
+    while(!foundY){
+      if(Enes100.isVisible()){
+      y = Enes100.getY();
+      foundY = true;
+      }
+    }
+
   if (y > 1.3) return TOP;
   if (y > 0.75) return MID;
   return BOT;
@@ -73,9 +91,19 @@ int getNextLane(int current) {
 
 void navigateToLane(int target) {
   float targetY = LANE_Y[target];
-  bool goingUp = Enes100.getY() < targetY;
+
+    float y;
+    bool foundY = false;
+    while(!foundY){
+      if(Enes100.isVisible()){
+      y = Enes100.getY();
+      foundY = true;
+      }
+    }
+
+  bool goingUp = y < targetY;
   float heading = goingUp ? PI / 2 : -PI / 2;
-  while (goingUp ? Enes100.getY() < targetY : Enes100.getY() > targetY) {
+  while (goingUp ? y < targetY : y > targetY) {
     turnTo(heading);
     moveForward(255, 50);
   }
@@ -124,19 +152,29 @@ void navigateRow(int row) {
 
   // Drive forward past the row
   float targetX = (row == 1) ? 1.9 : 2.8;
-  while (Enes100.getX() < targetX) {
-    turnTo(0);
-    moveForward(255, 50);
+
+  bool notVisible = true;
+
+  while(notVisible){
+    if(Enes100.isVisible()){
+      while (Enes100.getX() < targetX) {
+        turnTo(0);
+        moveForward(255, 50);
+      }
+      notVisible = false;
+    }
   }
 }
 
 // --- Setup ---
 
 void setup() {
-  Enes100.begin("FIRETEST", FIRE, 11, 1116, 52, 50);
+  Enes100.begin("FIRETEST", FIRE, 18, 1116, 52, 50);
   Enes100.println("Connected to Vision System");
   Tank.begin();
 
+  turnTo(0);
+  /*
   while (Enes100.getX() < .9) {
     turnTo(0);
     moveForward(255, 100);
@@ -153,7 +191,7 @@ void setup() {
   while (Enes100.getX() < 3.8) {
     turnTo(0);
     moveForward(255, 100);
-  }
+  }*/
   
 }
 
