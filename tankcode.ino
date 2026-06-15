@@ -395,14 +395,13 @@ void initPins() {
 void setup() {
     initPins();
 
-  turnRight(255, 100000000000);
 
   delay(1000);
   Enes100.begin("FIRETEST", FIRE, 275, 1201, 10, 11);
   delay(1000);
   goToSite();
- // doMission();
- // nav();
+  doMission();
+  nav();
 }
 
 void loop() { delay(100); }
